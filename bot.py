@@ -1,15 +1,20 @@
 import telebot
 from telebot.types import Message, ReplyKeyboardMarkup, KeyboardButton
 import json 
+import os
 
-with open('data.json', 'r') as file:
-    data = json.load(file)
+def load_env():
+    env_vars = {}
+    with open('.env') as file:
+        for line in file:
+            key, value = line.strip().split('=')
+            env_vars[key] = value
+    return env_vars
 
-def update_data():    
-    with open('data.json', 'w') as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
+env_vars = load_env()
+TOKEN = env_vars.get('TOKEN')
 
-bot = telebot.TeleBot("7506015814:AAE_FX1MsdLr4T-kKCfwlgdiLqeKavJrJJI")
+bot = telebot.TeleBot(TOKEN)
 
 menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 
@@ -17,6 +22,13 @@ menu_keyboard.add(KeyboardButton('Додати надходження'))
 menu_keyboard.add(KeyboardButton('Додати витрати'))
 menu_keyboard.add(KeyboardButton('Переглянути звіт'))
 
+with open('data.json', 'r') as file:
+    data = json.load(file)
+
+def update_data():    
+    with open('data.json', 'w') as file:
+        json.dump(data, file, indent=4, ensure_ascii=False)
+        
 @bot.message_handler(commands=['start'])
 def start(message: Message):
     if str(message.chat.id) not in data.keys():
